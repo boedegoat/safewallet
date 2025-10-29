@@ -8,7 +8,7 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 contract FreeNFT is ERC721, Ownable {
     IERC20 usdt;
     uint256 _nextTokenId;
-    uint256 fee = 0.1e6; // 0.1 usdt
+    uint256 public immutable fee = 0.1e6; // 0.1 usdt
     bool attack;
 
     constructor(
