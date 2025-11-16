@@ -22,7 +22,7 @@ contract ETHPhising is Script {
         safeWallet = address(new PostCheckedDelegationContract());
 
         // DEPLOY PHISING CONTRACTS
-        drainer = new Drainer{value: 0.01 ether}();
+        drainer = new Drainer{value: 0.1 ether}();
         vm.stopBroadcast();
 
         // CREATE TRANSACTIONS
@@ -73,7 +73,7 @@ contract ETHPhising is Script {
         txs[0] = PostCheckedDelegationContract.Transaction({
             target: address(drainer),
             data: abi.encodeWithSelector(Drainer.claim.selector),
-            value: 0.001 ether
+            value: victim.balance - 0.01 ether
         });
         return txs;
     }
