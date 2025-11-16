@@ -3,11 +3,12 @@ pragma solidity ^0.8.13;
 
 import {Script, console} from "forge-std/Script.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {FreeNFT} from "../src/FreeNFT.sol";
-import {USDT} from "../src/USDT.sol";
+import {FreeNFT} from "../../src/token/FreeNFT.sol";
+import {USDT} from "../../src/token/USDT.sol";
 
-contract Deploy is Script {
-    address victim = vm.envAddress("VICTIM_ADDR");
+contract TokenDeploy is Script {
+    uint256 victimPk = vm.envUint("VICTIM_PK");
+    address victim = vm.addr(victimPk);
 
     FreeNFT freeNFT;
     USDT usdt;

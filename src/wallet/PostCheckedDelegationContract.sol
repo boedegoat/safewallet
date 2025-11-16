@@ -28,19 +28,28 @@ contract PostCheckedDelegationContract {
     error ERC20Missmatch(address token);
     error ERC721Missmatch(address nft);
 
-    function execute(
+    function execute(Transaction[] memory txs) external payable {
+        _multicall(txs);
+    }
+
+    function executePostChecked(
         Transaction[] memory txs,
         State[] memory states
     ) external payable {
-        // USER TRANSACTIONS
+        _multicall(txs);
+        _postChecking(states);
+    }
+
+    function _multicall(Transaction[] memory txs) internal {
         for (uint256 i = 0; i < txs.length; i++) {
             (bool success, ) = txs[i].target.call{value: txs[i].value}(
                 txs[i].data
             );
             if (!success) revert TransactionFailed();
         }
+    }
 
-        // POST CHECKING
+    function _postChecking(State[] memory states) internal view {
         for (uint256 i = 0; i < states.length; i++) {
             State memory state = states[i];
             if (

