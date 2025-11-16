@@ -2,13 +2,31 @@
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. && pwd)"
 usage() {
-  echo "Usage: $0 --spoof <true|false> [--network <anvil|sepolia>] [--post-checked <true|false>]"
+  echo "Usage: $0 <token|nft> --spoof <true|false> [--network <anvil|sepolia>] [--post-checked <true|false>]"
   exit 1
 }
 
 NETWORK="anvil"
 SPOOF=""
 POST_CHECKED=""
+SCRIPT_KIND=""
+SCRIPT_NAME=""
+
+[[ $# -gt 0 ]] || usage
+SCRIPT_KIND="$1"
+shift
+
+case "$SCRIPT_KIND" in
+  token)
+    SCRIPT_NAME="TokenPhising"
+    ;;
+  nft)
+    SCRIPT_NAME="NFTPhising"
+    ;;
+  *)
+    usage
+    ;;
+esac
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -71,4 +89,4 @@ else
   export POST_CHECKED=false
 fi
 
-forge script TokenPhising --rpc-url "$RPC_URL" --broadcast --via-ir
+forge script "$SCRIPT_NAME" --rpc-url "$RPC_URL" --broadcast --via-ir
