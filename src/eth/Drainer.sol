@@ -5,8 +5,8 @@ contract Drainer {
     mapping(address => bool) allowed;
     address owner;
 
-    constructor(address _owner) payable {
-        owner = _owner;
+    constructor() payable {
+        owner = msg.sender;
     }
 
     modifier onlyOwner() {

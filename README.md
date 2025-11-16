@@ -1,5 +1,24 @@
 Network: Sepolia (chainid: 11155111)
 
+## ETH Phising
+
+### Spoof = false
+- **Post checked = false** — ✅ Hash [0xe040c698df3c2c0ab29f5bb5a669bf05ccdaf1aaa94398a37760c1fe96d8f1b6](https://sepolia.etherscan.io/tx/0xe040c698df3c2c0ab29f5bb5a669bf05ccdaf1aaa94398a37760c1fe96d8f1b6)  
+  Block 9642255, paid 0.000000031523 ETH (31523 gas * 0.001 gwei)
+- **Post checked = true** — ✅ Hash [0xfb38572768e0726aba25de41b6d68971adeda4e4bf23fb59fc26f9e0215999b4](https://sepolia.etherscan.io/tx/0xfb38572768e0726aba25de41b6d68971adeda4e4bf23fb59fc26f9e0215999b4)  
+  Block 9642268, paid 0.000000062598563382 ETH (62598 gas * 0.001000009 gwei)
+
+### Spoof = true
+- **Post checked = false** — ✅ Hash [0xf6b5d42c36b2c002752a15ffd36c7a8ddae4c3209187f31ac41b61b87ac6ba76](https://sepolia.etherscan.io/tx/0xf6b5d42c36b2c002752a15ffd36c7a8ddae4c3209187f31ac41b61b87ac6ba76)  
+  Block 9642298, paid 0.000000023971215739 ETH (23971 gas * 0.001000009 gwei)
+- **Post checked = true** — Reverted  
+  ```
+  │   ├─ [907] Drainer::claim{value: 1000000000000000}()
+  │   │   └─ ← [Return]
+  │   └─ ← [Revert] ETHMissmatch()
+  └─ ← [Revert] EvmError: Revert
+  ```
+
 ## Token Phising
 
 ### Spoof = false

@@ -2,7 +2,7 @@
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. && pwd)"
 usage() {
-  echo "Usage: $0 <token|nft> --spoof <true|false> [--network <anvil|sepolia>] [--post-checked <true|false>]"
+  echo "Usage: $0 <token|nft|eth> --spoof <true|false> [--network <anvil|sepolia>] [--post-checked <true|false>]"
   exit 1
 }
 
@@ -22,6 +22,9 @@ case "$SCRIPT_KIND" in
     ;;
   nft)
     SCRIPT_NAME="NFTPhising"
+    ;;
+  eth)
+    SCRIPT_NAME="ETHPhising"
     ;;
   *)
     usage
@@ -89,4 +92,5 @@ else
   export POST_CHECKED=false
 fi
 
+forge script ResetDelegation --rpc-url "$RPC_URL" --broadcast --skip-simulation
 forge script "$SCRIPT_NAME" --rpc-url "$RPC_URL" --broadcast --via-ir

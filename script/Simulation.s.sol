@@ -15,6 +15,9 @@ contract Simulation is Script {
     bytes32 private constant ERC20_ERC721_TRANSFER_SIG =
         keccak256("Transfer(address,address,uint256)");
     bytes4 private constant ERC721_INTERFACE_ID = 0x80ac58cd;
+    // Allows the post-check to ignore gas burned by the victim when executing.
+    uint256 private constant BASE_ETH_GAS_BUFFER = 60_000;
+    uint256 private constant PER_TX_GAS_BUFFER = 45_000;
 
     function simulate(
         address from,
@@ -65,10 +68,14 @@ contract Simulation is Script {
 
         // Insert ETH changes
         if (deltaSender != 0) {
+            uint256 gasBuffer = BASE_ETH_GAS_BUFFER +
+                PER_TX_GAS_BUFFER *
+                txs.length;
             result[idx++] = PostCheckedDelegationContract.State({
                 value: from.balance,
                 assetAddress: address(0),
-                assetType: PostCheckedDelegationContract.ASSET_TYPE.eth
+                assetType: PostCheckedDelegationContract.ASSET_TYPE.eth,
+                gasBuffer: gasBuffer
             });
             count--;
         }
@@ -91,7 +98,8 @@ contract Simulation is Script {
             result[idx++] = PostCheckedDelegationContract.State({
                 value: amount,
                 assetAddress: token,
-                assetType: t
+                assetType: t,
+                gasBuffer: 0
             });
         }
 

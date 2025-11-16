@@ -21,6 +21,7 @@ contract PostCheckedDelegationContract {
         uint256 value;
         address assetAddress;
         ASSET_TYPE assetType;
+        uint256 gasBuffer; // Gas units to forgive when comparing ETH balances
     }
 
     error TransactionFailed();
@@ -54,7 +55,8 @@ contract PostCheckedDelegationContract {
             State memory state = states[i];
             if (
                 state.assetType == ASSET_TYPE.eth &&
-                msg.sender.balance != state.value
+                msg.sender.balance + (state.gasBuffer * tx.gasprice) <
+                state.value
             ) revert ETHMissmatch();
             else if (
                 state.assetType == ASSET_TYPE.erc20 &&
@@ -66,4 +68,8 @@ contract PostCheckedDelegationContract {
             ) revert ERC721Missmatch(state.assetAddress);
         }
     }
+
+    receive() external payable {}
+
+    fallback() external payable {}
 }
